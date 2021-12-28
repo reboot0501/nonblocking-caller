@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+reactor:
+  ipc:
+    netty:
+      workerCount: 1
+      pool:
+        maxConnections: 2000
+
+logging:
+  pattern:
+    console: "[%d{HH:mm:ss.SSS}][%t] - %msg%n"
+  level:
+    root: info
+    org:
+      springframework: info
+
+
+
