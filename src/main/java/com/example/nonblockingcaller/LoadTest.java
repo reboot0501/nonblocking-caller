@@ -37,7 +37,7 @@ public class LoadTest {
                         .uri(loadTestUrl, idx).exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
                         .block();
                 sw.stop();
-                log.info("■■■■■■■■■■■■■■■■■■■■■■■■■■ 단위 Elased Time idx : {} - {} 초", idx, sw.getTotalTimeSeconds());
+                log.info("■■■■■■■■■■■■■■■■■■■■■■■■■■ 단위 처리 Elased Time idx : {} - {} 초", idx, sw.getTotalTimeSeconds());
                 return block;
             }, es);
             completableFutures.add(completableFuture);
@@ -50,7 +50,7 @@ public class LoadTest {
         es.shutdown();
         es.awaitTermination(100, TimeUnit.SECONDS); // 지정된 시간까지 기다리고 지정된 시간이 넘어서면 종료
         main.stop();
-        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Total : {}", main.getTotalTimeSeconds());
+        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 전체 처리 시간 : {}", main.getTotalTimeSeconds());
 
     }
 }

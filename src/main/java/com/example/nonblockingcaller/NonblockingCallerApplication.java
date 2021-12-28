@@ -1,11 +1,13 @@
+/**
+ * Webflux Non Blocking Caller
+ * Netty Base 구동
+ */
 package com.example.nonblockingcaller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
@@ -40,15 +42,19 @@ public class NonblockingCallerApplication {
 		@GetMapping("/rest")
 		public Mono<String> rest(int idx) {
 
-			Mono<String> stringMono = client.get().uri(URL1, idx)
+			return client.get().uri(URL1, idx)// request 파라미터로 1초 걸리는 작업 URL 호출
+					// request --> mono Type 의 Reponse 로 변환
 					.exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
-					.doOnNext(s -> log.info("--------------------------> URL1 결과 로그 {}",  s.toString()))
+					// 직전 publisher 로그 결과 만 출력
+					.doOnNext(s -> log.info("--------------------------> URL1 결과 로그 : {}",  s))
+					// 이전 작업의 결과를 파라미터로 1초 걸리는 작업 URL 호출, request --> mono Type 의 Reponse 로 변환
 					.flatMap(result1 -> client.get().uri(URL2, result1).exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class)))
-					.doOnNext(s -> log.info("--------------------------> URL2 결과 로그 {}",  s.toString()))
+					// 직전 publisher 로그 결과 만 출력
+					.doOnNext(s -> log.info("--------------------------> URL2 결과 로그 : {}",  s))
+					// 비동기 서비스 작업 호출
 					.flatMap(result2 -> Mono.fromCompletionStage(this.myService.work(result2)))
 					;
 
-			return stringMono;
 		}
 
 	}
@@ -57,6 +63,7 @@ public class NonblockingCallerApplication {
 	public static class MyService {
 		@Async
 		public CompletableFuture<String> work(String req) {
+			log.info("----------------------------> 비동기 서비스 - req : {}", req);
 			return CompletableFuture.completedFuture(req + " / asyncWork");
 		}
 	}
